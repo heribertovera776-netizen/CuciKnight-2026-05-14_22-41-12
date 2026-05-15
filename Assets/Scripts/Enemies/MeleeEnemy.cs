@@ -2,10 +2,6 @@ using UnityEngine;
 
 namespace SoulKnight.Enemies
 {
-    /// <summary>
-    /// Melee enemy: chases the player and deals contact/melee damage.
-    /// State machine: Idle → Chase → Attack → Cooldown
-    /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     public class MeleeEnemy : BaseEnemy
     {
@@ -17,11 +13,10 @@ namespace SoulKnight.Enemies
         private Rigidbody2D rb;
         private Animator animator;
         private float attackTimer;
-
         private EnemyState state = EnemyState.Idle;
 
         private static readonly int HashIsMoving = Animator.StringToHash("IsMoving");
-        private static readonly int HashAttack = Animator.StringToHash("Attack");
+        private static readonly int HashAttack  = Animator.StringToHash("Attack");
 
         protected override void Start()
         {
@@ -34,18 +29,18 @@ namespace SoulKnight.Enemies
         {
             if (playerTransform == null) return;
 
-            float distToPlayer = Vector2.Distance(transform.position, playerTransform.position);
+            float dist = Vector2.Distance(transform.position, playerTransform.position);
             attackTimer -= Time.deltaTime;
 
             switch (state)
             {
                 case EnemyState.Idle:
                     rb.linearVelocity = Vector2.zero;
-                    if (distToPlayer <= detectionRadius) state = EnemyState.Chase;
+                    if (dist <= detectionRadius) state = EnemyState.Chase;
                     break;
 
                 case EnemyState.Chase:
-                    ChasePlayer(distToPlayer);
+                    ChasePlayer(dist);
                     break;
 
                 case EnemyState.Attack:
@@ -59,17 +54,8 @@ namespace SoulKnight.Enemies
 
         private void ChasePlayer(float dist)
         {
-            if (dist > detectionRadius * 1.5f)
-            {
-                state = EnemyState.Idle;
-                return;
-            }
-
-            if (dist <= attackRadius)
-            {
-                Attack();
-                return;
-            }
+            if (dist > detectionRadius * 1.5f) { state = EnemyState.Idle; return; }
+            if (dist <= attackRadius) { Attack(); return; }
 
             Vector2 dir = ((Vector2)playerTransform.position - rb.position).normalized;
             rb.linearVelocity = dir * enemyData.MoveSpeed;
@@ -78,16 +64,14 @@ namespace SoulKnight.Enemies
         private void Attack()
         {
             if (attackTimer > 0f) return;
-
             state = EnemyState.Attack;
             attackTimer = attackCooldown;
             animator?.SetTrigger(HashAttack);
 
-            // Deal damage via overlap check
             Collider2D hit = Physics2D.OverlapCircle(transform.position, attackRadius + 0.2f,
                 LayerMask.GetMask("Player"));
 
-            if (hit != null && hit.TryGetComponent<SoulKnight.Player.PlayerStats>(out var player))
+            if (hit != null && hit.TryGetComponent<Player.PlayerStats>(out var player))
                 player.TakeDamage(enemyData.Damage);
         }
 

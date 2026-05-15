@@ -4,10 +4,6 @@ using TMPro;
 
 namespace SoulKnight.UI
 {
-    /// <summary>
-    /// Connects PlayerStats events to HUD elements (health bar, armor bar, energy bar, score).
-    /// Attach to Canvas / HUD root object.
-    /// </summary>
     public class HUDController : MonoBehaviour
     {
         [Header("Health")]
@@ -34,11 +30,9 @@ namespace SoulKnight.UI
 
         private void Start()
         {
-            // Find player
-            var player = FindFirstObjectByType<Player.PlayerStats>();
+            var player = FindAnyObjectByType<Player.PlayerStats>();
             if (player != null) RegisterPlayer(player);
 
-            // Subscribe to score
             if (Systems.ScoreManager.Instance != null)
                 Systems.ScoreManager.Instance.OnScoreChanged += UpdateScore;
 
@@ -52,7 +46,6 @@ namespace SoulKnight.UI
             stats.OnArmorChanged.AddListener(UpdateArmor);
             stats.OnEnergyChanged.AddListener(UpdateEnergy);
 
-            // Set initial values
             UpdateHealth(stats.CurrentHealth, stats.MaxHealth);
             UpdateArmor(stats.CurrentArmor, stats.MaxArmor);
             UpdateEnergy(stats.CurrentEnergy, stats.MaxEnergy);

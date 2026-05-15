@@ -2,110 +2,69 @@ using UnityEngine;
 
 namespace SoulKnight.Player
 {
-    /// <summary>
-    /// Top-down player movement using Rigidbody2D.
-    /// WASD / Arrow keys / Left Joystick support.
-    /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
-    [RequireComponent(typeof(PlayerStats))]
     public class PlayerMovement : MonoBehaviour
     {
         [Header("Movement Settings")]
+        [SerializeField] private float moveSpeed = 5f;
         [SerializeField] private float dashDistance = 3f;
         [SerializeField] private float dashCooldown = 1f;
-        [SerializeField] private float dashEnergyCost = 20f;
 
         private Rigidbody2D rb;
-        private PlayerStats stats;
-        private Animator animator;
-
         private Vector2 moveInput;
-        private float dashCooldownTimer;
+        private float dashTimer;
         private bool isDashing;
-
-        // Animator parameter hashes
-        private static readonly int HashMoveX = Animator.StringToHash("MoveX");
-        private static readonly int HashMoveY = Animator.StringToHash("MoveY");
-        private static readonly int HashIsMoving = Animator.StringToHash("IsMoving");
-        private static readonly int HashDash = Animator.StringToHash("Dash");
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
-            stats = GetComponent<PlayerStats>();
-            animator = GetComponent<Animator>();
         }
 
         private void Update()
         {
-            GatherInput();
-            HandleDash();
-            UpdateAnimator();
+            // Leer input
+            float h = Input.GetAxisRaw("Horizontal");
+            float v = Input.GetAxisRaw("Vertical");
+            moveInput = new Vector2(h, v).normalized;
 
-            dashCooldownTimer -= Time.deltaTime;
+            dashTimer -= Time.deltaTime;
+
+            // Dash con Space
+            if (Input.GetKeyDown(KeyCode.Space) && dashTimer <= 0f && !isDashing)
+            {
+                StartCoroutine(DashRoutine());
+            }
         }
 
         private void FixedUpdate()
         {
             if (!isDashing)
-                Move();
-        }
-
-        private void GatherInput()
-        {
-            moveInput.x = Input.GetAxisRaw("Horizontal");
-            moveInput.y = Input.GetAxisRaw("Vertical");
-            moveInput = moveInput.normalized;
-        }
-
-        private void Move()
-        {
-            rb.linearVelocity = moveInput * stats.MoveSpeed;
-        }
-
-        private void HandleDash()
-        {
-            if (Input.GetKeyDown(KeyCode.Space) && dashCooldownTimer <= 0f && !isDashing)
             {
-                if (stats.UseEnergy(dashEnergyCost))
-                {
-                    StartCoroutine(DashRoutine());
-                }
+                rb.linearVelocity = moveInput * moveSpeed;
             }
         }
 
         private System.Collections.IEnumerator DashRoutine()
         {
             isDashing = true;
-            dashCooldownTimer = dashCooldown;
-            animator?.SetTrigger(HashDash);
+            dashTimer = dashCooldown;
 
-            Vector2 dashDir = moveInput != Vector2.zero ? moveInput : (Vector2)transform.up;
-            Vector2 startPos = rb.position;
-            Vector2 targetPos = startPos + dashDir * dashDistance;
+            Vector2 dir = moveInput != Vector2.zero ? moveInput : Vector2.right;
+            Vector2 target = rb.position + dir * dashDistance;
 
             float elapsed = 0f;
-            float dashDuration = 0.15f;
+            float duration = 0.15f;
+            Vector2 start = rb.position;
 
-            while (elapsed < dashDuration)
+            while (elapsed < duration)
             {
-                rb.MovePosition(Vector2.Lerp(startPos, targetPos, elapsed / dashDuration));
+                rb.MovePosition(Vector2.Lerp(start, target, elapsed / duration));
                 elapsed += Time.fixedDeltaTime;
                 yield return new WaitForFixedUpdate();
             }
 
-            rb.MovePosition(targetPos);
+            rb.MovePosition(target);
             isDashing = false;
         }
-
-        private void UpdateAnimator()
-        {
-            if (animator == null) return;
-            animator.SetFloat(HashMoveX, moveInput.x);
-            animator.SetFloat(HashMoveY, moveInput.y);
-            animator.SetBool(HashIsMoving, moveInput != Vector2.zero);
-        }
-
-        public Vector2 GetMoveDirection() => moveInput;
     }
 }

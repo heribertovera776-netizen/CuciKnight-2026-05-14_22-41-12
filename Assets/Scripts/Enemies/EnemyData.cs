@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using SoulKnight.Systems;
 namespace SoulKnight.Enemies
 {
     [CreateAssetMenu(fileName = "NewEnemy", menuName = "SoulKnight/Enemy Data")]
