@@ -69,7 +69,7 @@ namespace SoulKnight.Enemies
             animator?.SetTrigger(HashAttack);
 
             Collider2D hit = Physics2D.OverlapCircle(transform.position, attackRadius + 0.2f,
-                LayerMask.GetMask("Player"));
+                LayerMask.GetMask("player"));
 
             if (hit != null && hit.TryGetComponent<Player.PlayerStats>(out var player))
                 player.TakeDamage(enemyData.Damage);

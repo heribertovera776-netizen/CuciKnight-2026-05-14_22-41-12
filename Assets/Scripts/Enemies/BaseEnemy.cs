@@ -25,7 +25,7 @@ namespace SoulKnight.Enemies
             currentHealth = enemyData.MaxHealth;
 
             // Compatible con Unity 6
-            var playerObj = GameObject.FindGameObjectWithTag("Player");
+            var playerObj = GameObject.FindGameObjectWithTag("player");
             if (playerObj != null)
                 playerTransform = playerObj.transform;
         }

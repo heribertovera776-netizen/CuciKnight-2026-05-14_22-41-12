@@ -30,15 +30,18 @@ namespace SoulKnight.Systems
         public event System.Action OnNextFloor;
 
         private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
+{
+    if (Instance != null && Instance != this)
+    {
+        Destroy(gameObject);
+        return;
+    }
+    Instance = this;
+    DontDestroyOnLoad(gameObject);
+
+    // Iniciar directamente en Playing para pruebas
+    SetState(GameState.Playing);
+}
 
         public void StartNewRun()
         {
