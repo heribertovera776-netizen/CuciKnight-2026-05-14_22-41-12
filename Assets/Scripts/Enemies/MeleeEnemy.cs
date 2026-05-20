@@ -15,8 +15,8 @@ namespace SoulKnight.Enemies
         private float attackTimer;
         private EnemyState state = EnemyState.Idle;
 
-        private static readonly int HashIsMoving = Animator.StringToHash("IsMoving");
-        private static readonly int HashAttack  = Animator.StringToHash("Attack");
+        //private static readonly int HashIsMoving = Animator.StringToHash("IsMoving");
+       //private static readonly int HashAttack  = Animator.StringToHash("Attack");
 
         protected override void Start()
         {
@@ -49,7 +49,7 @@ namespace SoulKnight.Enemies
                     break;
             }
 
-            animator?.SetBool(HashIsMoving, rb.linearVelocity.sqrMagnitude > 0.1f);
+           // animator?.SetBool(HashIsMoving, rb.linearVelocity.sqrMagnitude > 0.1f);
         }
 
         private void ChasePlayer(float dist)
@@ -66,7 +66,7 @@ namespace SoulKnight.Enemies
             if (attackTimer > 0f) return;
             state = EnemyState.Attack;
             attackTimer = attackCooldown;
-            animator?.SetTrigger(HashAttack);
+            //animator?.SetTrigger(HashAttack);
 
             Collider2D hit = Physics2D.OverlapCircle(transform.position, attackRadius + 0.2f,
                 LayerMask.GetMask("player"));
