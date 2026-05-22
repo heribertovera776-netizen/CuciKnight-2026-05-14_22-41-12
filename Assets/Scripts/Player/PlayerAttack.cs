@@ -18,9 +18,16 @@ public class PlayerAttack : MonoBehaviour
             attackTimer = attackCooldown;
         }
     }
+private Animator animator;
 
+private void Start()
+{
+    animator = GetComponent<Animator>();
+}
     private void Attack()
     {
+        animator?.SetTrigger("Attack");
+        
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, attackRadius);
         foreach (var hit in hits)
         {
